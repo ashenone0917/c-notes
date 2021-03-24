@@ -108,7 +108,7 @@ title可加可不加
 ```
 效果如下：\
 [简书](http://jianshu.com)
-[百度](http://baidu.com)
+[百度](http://baidu.com)\
 注：Markdown本身语法不支持链接在新页面中打开，貌似简书做了处理，是可以的。别的平台可能就不行了，如果想要在新页面中打开的话可以用html语言的a标签代替。
 ```
 <a href="超链接地址" target="_blank">超链接名</a>
