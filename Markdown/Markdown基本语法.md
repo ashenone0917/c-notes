@@ -92,7 +92,13 @@ n个...
 ![blockchain](https://github.com/ashenone0917/image/blob/main/testA2.png "11")
 ```
 效果如下：\
-![blockchain](https://github.com/ashenone0917/image/blob/main/testA2.png "11")\
+![blockchain](https://github.com/ashenone0917/image/blob/main/testA2.png "11")
+
+还可以使用css语句
+```
+<img src="https://github.com/ashenone0917/image/blob/main/v2-ebc51ace0133b0e0794e0b50fc8bdd92_720w.jpg" width = "443" height = "495" alt="cpu cache" align=center />
+```
+
 **上传本地图片直接点击导航栏的图片标志，选择图片即可**\
 markdown格式追求的是简单、多平台统一。那么图片的存储就是一个问题，需要用图床，提供统一的外链，这样就不用在不同的平台去处理图片的问题了。才能做到书写一次，各处使用。
 ## 六、超链接
