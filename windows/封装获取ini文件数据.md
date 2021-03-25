@@ -38,6 +38,7 @@ DWORD GetPrivateProfileString_s(
 
         if(lpAppName && lpKeyName && dwReturn == dwBufferLen - 1) {
            dwBufferLen = dwBufferLen << 1;
+           //realloc失败不会释放原内存
            auto pTemp = (LPTSTR)::realloc(pBuffer, sizeof(TCHAR) * dwBufferLen);
            if (pTemp == NULL) {
                dwReturn = ERROR_NOT_ENOUGH_MEMORY;
@@ -46,19 +47,20 @@ DWORD GetPrivateProfileString_s(
            pBuffer = pTemp;
            continue;
         }
-        
-        if (pBuffer != NULL) {
-            lpReturnedString = pBuffer;
-            ::free(pBuffer);
-            pBuffer = NULL;
-        }   
 
         break;
 
     } while (1);
     
+    if (pBuffer != NULL) {
+        lpReturnedString = pBuffer;
+        ::free(pBuffer);
+        pBuffer = NULL;
+    }
+
     return dwReturn;
 }
+
 int main()
 {
     tstring test;
