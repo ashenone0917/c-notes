@@ -13,7 +13,7 @@ int my_binary_search(vector<string>& vec, string& val) {
     while (left <= right) {
         mid = left + (right - left >> 1);
         if (vec[mid] < val) left = mid + 1;
-        else if (vec[mid] > val) right = mid - 1;
+        else if (val < vec[mid]) right = mid - 1;
         else {
             return mid;
         }
