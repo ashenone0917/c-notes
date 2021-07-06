@@ -1,3 +1,5 @@
+//存储当前插件列表
+std::share_ptr<PluginList> g_sPluginList;
 BOOL APIENTRY DllMain( HANDLE hModule, 
                        DWORD  reasonForCall, 
                        LPVOID /*lpReserved*/ )
