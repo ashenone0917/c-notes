@@ -41,5 +41,10 @@ int main() {
     if (!resulttt3.second) resulttt.first->second++;
     auto resulttt4 = hashMapName.try_emplace(test_info4, 1);
     if (!resulttt4.second) resulttt.first->second++;
+    
+    test_info* test_info5 = (test_info*)::malloc(1 + 3);
+    test_info5->name_length_ = 3;
+    wmemcpy(test_info5->name_, L"123", 3);
+    auto resultFind = hashMapName.find(test_info5);
 }
 ```
