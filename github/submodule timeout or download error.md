@@ -5,3 +5,9 @@ git config --global http.proxy http://127.0.0.1:7890
 git config --global https.proxy http://127.0.0.1:7890
 ```
 clash默认端口号就是7890
+
+再加个powershell里的配置
+```
+set https_proxy=http://127.0.0.1:7890
+set http_proxy=http://127.0.0.1:7890
+```
