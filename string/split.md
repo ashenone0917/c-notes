@@ -18,7 +18,7 @@ inline std::vector<TString> SplitString(TString& tstring_, typename TString::con
         start = end + 1;
     } while (start < size);
 
-    return std::move(retVal);
+    return retVal;
 }
 
 int main()
