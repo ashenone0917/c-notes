@@ -11,6 +11,13 @@ void setName(T&& name) {
     std::cout << t <<std::endl;
 }
 
+template<typename T,
+	std::enable_if_t<std::is_constructible_v<std::string, std::decay_t<T>>>* = nullptr>
+	void setName(T&& name) {
+	std::string t(std::forward<T>(name));
+	std::cout << t << std::endl;
+}
+
 int main()
 {
     setName("123");
