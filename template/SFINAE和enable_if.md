@@ -171,6 +171,22 @@ template <typename T> void inc_counter(
 其次，is_integral<T>::value返回一个布尔类型的编译器常数，告诉我们它是或者不是一个integral，enable_if<C>的作用就是，如果这个C值为True，那么type就会被推断成一个void或者是别的什么类型，让整个函数匹配后的类型变成 
 ```cpp
 void inc_counter<int>(int & counterInt, void* = nullptr);//是可以编译通过的，默认值参数且没形参，等于没用，可以理解为一个参数
+    
+template<typename T,
+	std::enable_if_t<std::is_constructible_v<std::string, std::decay_t<T>>>* = nullptr>
+	void setName(T&& name) {
+	std::string t(std::forward<T>(name));
+	std::cout << t << std::endl;
+}
+
+//上面那个，如果enable_if_t<true>则变成如下，也是可以编译过的，和void inc_counter<int>(int & counterInt, void* = nullptr)差不多
+template<typename T,
+	void* = nullptr>
+	void setName2(T&& name) {
+	std::string t(std::forward<T>(name));
+	std::cout << t << std::endl;
+}
+
 ```
 如果这个值为False，那么enable_if<false>这个特化形式中，压根就没有这个::type，于是substitution就失败了 —— 所以这个函数原型根本就不会被产生出来。
 
