@@ -1,11 +1,11 @@
 ```cpp
-SECURITY_DESCRIPTOR* getFileSecurityDescriptor(const char* path) {
+SECURITY_DESCRIPTOR* getFileSecurityDescriptor(const wchar_t* path) {
     SECURITY_DESCRIPTOR* sd = NULL;
     DWORD len = 0;
     SECURITY_INFORMATION info =
         OWNER_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION;
 
-    if (FALSE == GetFileSecurityA(path, info, 0, 0, &len)) {
+    if (FALSE == GetFileSecurity(path, info, 0, 0, &len)) {
         if (::GetLastError() != ERROR_INSUFFICIENT_BUFFER) {
             return NULL;
         }
@@ -17,8 +17,9 @@ SECURITY_DESCRIPTOR* getFileSecurityDescriptor(const char* path) {
         return NULL;
     }
     else {
-        if (!(*GetFileSecurityA)(path, info, sd, len, &len)) {
+        if (!(*GetFileSecurity)(path, info, sd, len, &len)) {
             free(sd);
+            sd = NULL;
             return NULL;
         }
     }
@@ -41,38 +42,6 @@ ACL* getFileDACL(SECURITY_DESCRIPTOR* sd) {
     return acl;
 }
 
-BOOLEAN GetInfo(PSID sid, LPWSTR* ppName, LPWSTR* ppDomain)
-{
-    DWORD dwNameSize = 0;
-    DWORD dwDomainNameSize = 0;
-    SID_NAME_USE snu;
-    if (!LookupAccountSid(NULL, sid, NULL, &dwNameSize, NULL, &dwDomainNameSize, &snu)) {
-        if (ERROR_INSUFFICIENT_BUFFER != GetLastError()) {
-            return FALSE;
-        }
-    }
-    *ppName = (LPWSTR)malloc(dwNameSize);
-    if (NULL == ppName) {
-        return FALSE;
-    }
-    *ppDomain = (LPWSTR)malloc(dwDomainNameSize);
-    if (NULL == ppName) {
-        DWORD err = GetLastError();
-        free(*ppName);
-        SetLastError(err);
-        return FALSE;
-    }
-    if (!LookupAccountSid(NULL, sid, *ppName, &dwNameSize, *ppDomain, &dwDomainNameSize, &snu)) {
-        DWORD err = GetLastError();
-        free(*ppName);
-        free(*ppDomain);
-        SetLastError(err);
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
 //获取文件拥有者
 SID* getFileOwner(SECURITY_DESCRIPTOR* sd) {
     SID* owner;
@@ -81,11 +50,6 @@ SID* getFileOwner(SECURITY_DESCRIPTOR* sd) {
     if (!GetSecurityDescriptorOwner(sd, (PSID*)&owner, &defaulted)) {
         return NULL;
     }
-    //LPWSTR temp = NULL;
-    //ConvertSidToStringSid(owner, &temp);
-    //LPWSTR temp1 = NULL;
-    //LPWSTR temp2 = NULL;
-    //GetInfo(owner, &temp1, &temp2);
     return owner;
 }
 #define RW_ACCESS (FILE_GENERIC_READ | FILE_GENERIC_WRITE)
@@ -102,6 +66,7 @@ BOOL isAccessReadWrite(SID* owner, ACL* acl) {
         AclSizeInformation)) {
         return FALSE;
     }
+    
 
     for (i = 0; i < acl_size_info.AceCount; i++) {
         void* ace;
@@ -116,6 +81,7 @@ BOOL isAccessReadWrite(SID* owner, ACL* acl) {
         }
         access = (ACCESS_ALLOWED_ACE*)ace;
         sid = (SID*)&access->SidStart;
+        //sid用于测试
         if (EqualSid(owner, sid)) {
             if (access->Mask & FILE_GENERIC_READ || access->Mask & FILE_GENERIC_WRITE) {
                 return FALSE;
@@ -125,7 +91,7 @@ BOOL isAccessReadWrite(SID* owner, ACL* acl) {
     return TRUE;
 }
 
-BOOL isFileAccessWrite(const char* path) {
+BOOL isFileAccessWrite(const wchar_t* path) {
     auto sd = getFileSecurityDescriptor(path);
     if (sd == NULL) return TRUE;
 
@@ -134,6 +100,8 @@ BOOL isFileAccessWrite(const char* path) {
 
     ACL* acl = getFileDACL(sd);
     if (acl == NULL) return TRUE;
+
+    if (sd != NULL) ::free(sd);
 
     return isAccessReadWrite(ower, acl);
 }
