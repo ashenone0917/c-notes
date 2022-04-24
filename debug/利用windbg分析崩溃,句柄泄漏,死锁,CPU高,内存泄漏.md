@@ -43,6 +43,7 @@
 ![](https://github.com/ashenone0917/image/blob/main/L3Byb3h5L2h0dHBzL2ltZy1ibG9nLmNzZG4ubmV0LzIwMTgwMTI1MTUxNTAwMzM5P3dhdGVybWFyay8yL3RleHQvYUhSMGNEb3ZMMkpzYjJjdVkzTmtiaTV1WlhRdmVuRjNYelF4T0RFPS9mb250LzVhNkw1TDJUL2ZvbnRzaXplLzQwMC9maWxsL0kwSkJRa0ZDTUE9PS9kaXNzb2x2ZS83MC9ncmF2aX.png)  
 发现是刚才的2号线程  
 至此分析完成2号线程和3号线程发生死锁。  
+**备注：也可以直接使用命令```!locks```查看死锁**
 ## CPU高
 1. 输入!runaway
 2. 发现n号线程cpu最高，切到n号线程，并输出堆栈
