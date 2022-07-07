@@ -10,6 +10,7 @@ void mergeSort(vector<int>& v,int start,int end) {
 	
 	auto p = mid + 1;
 	std::vector<int> tmp;
+	tmp.reserve(end + 1);
 	for (; s <= mid;) {
 		if (p > e) break;
 		if (v[s] > v[p]) tmp.push_back(v[p++]);
