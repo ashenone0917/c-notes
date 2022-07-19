@@ -1,3 +1,4 @@
+```cpp
 #include <iostream>
 
 struct BinarySearchNode {
@@ -125,3 +126,4 @@ int main()
 	
 	std::cout << "Hello World!\n";
 }
+```
