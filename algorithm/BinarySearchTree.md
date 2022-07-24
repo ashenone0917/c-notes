@@ -168,6 +168,10 @@ public:
 		}
 	}
 
+	int getHeight() {
+		return getLayer(tree_) - 1;
+	}
+
 	void printOrder() {
 		printOrder(tree_);
 	}
@@ -178,6 +182,16 @@ public:
 		tree_ = nullptr;
 	}
 private:
+	//结束条件 p == nullptr
+	//currentHeight = max(leftHeight,rightHeight)
+	int getLayer(BinarySearchNode* node) {
+		if (node == nullptr) return 0;
+
+		auto leftHeight = getLayer(node->left_);
+		auto rightHeight = getLayer(node->right_);
+		return 1 + (leftHeight > rightHeight ? leftHeight : rightHeight);
+	}
+
 	void printOrder(BinarySearchNode* node) {
 		if (node == nullptr) return;
 		printOrder(node->left_);
@@ -216,14 +230,17 @@ int main()
 	{
 		BinarySearchTree bst;
 		bst.insert(5);
-		bst.insert(5);
 		bst.insert(6);
 		bst.insert(10);
-		bst.insert(10);
+		auto height = bst.getHeight();
 		bst.insert(2);
-		bst.insert(2);
+		height = bst.getHeight();
 		bst.insert(3);
+		height = bst.getHeight();
 		bst.insert(1);
+		height = bst.getHeight();
+		bst.insert(11);
+		height = bst.getHeight();
 		bst.printOrder();
 		auto pr = bst.getPostNode(5);
 		pr = bst.getPostNode(10);
