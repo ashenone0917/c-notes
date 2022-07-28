@@ -116,7 +116,7 @@ SSL的建立过程总共有13个包，第一次建立至少需要9个包。
 
 ![](https://github.com/ashenone0917/image/blob/main/ssl-flow.png)
 
-**SSL建立第一阶段：客户端首先发送ClientHello消息到服务端，服务端收到ClientHello消息后，再发送ServerHello消息回应客户端。**
+#### SSL建立第一阶段：客户端首先发送ClientHello消息到服务端，服务端收到ClientHello消息后，再发送ServerHello消息回应客户端。
 
 ![](https://github.com/ashenone0917/image/blob/main/client-server.png)
 
@@ -157,7 +157,7 @@ ServerHello中涉及到的具体参数：
 - 压缩方法
 - 有关密钥生成的两个随机数。
 
-**SSL建立第二阶段：服务器向客户端发送消息。**
+#### SSL建立第二阶段：服务器向客户端发送消息。
 
 ![](https://github.com/ashenone0917/image/blob/main/server-to-client.png)
 
