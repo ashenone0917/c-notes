@@ -46,6 +46,24 @@ openssl verify -CAfile ca-cert.pem client-cert.pem
 
 **注意：生产环境中需要将 CN=localhost 替换成实际域名**
 
+### 生成证书过程
+SSL server 自己生成一个私钥/公钥对。server.key/server.pub // 私钥加密，公钥解密！
+server.pub 生成一个请求文件 server.req. 请求文件中包含有 server 的一些信息，如域名/申请者/公钥等
+server 将请求文件 server.req 递交给 CA 机构，CA 机构验明正身后，将用 ca.key 和请求文件加密生成 server.crt
+由于 ca.key 和 ca.crt 是一对，于是 ca.crt 可以用来校验 server.crt
+说明：为了简化 CA 校验证书的过程，本文只介绍了最基本的情况。在实际大多数情况下：
+
+1. server 端的证书颁发机构 CA 和 client 端的证书颁发机构 CA 通常不同
+2. 证书实际情况下，可以是证书链，也就是多个上级机构逐级下发证书的链
+3. 证书校验时，CA 通常可以选择校验证书链的深度，最基础的情况是只校验一级
+
+如果 SSL client 想要校验 SSL server. 那么 SSL server 必须要将他的证书 server.crt 传给 client. 然后 client 用 ca.crt 去校验 server.crt 的合法性。
+
+如果 server 是一个钓鱼网站，那么 CA 机构是不会给他颁发合法 server.crt 证书的，这样 client 用 ca.crt 去校验，就会失败。
+
+比如：浏览器作为一个 SSL client, 你想访问合法的淘宝网站 https://www.taobao.com, 结果不慎访问到 https://wwww.jiataobao.com, 那么浏览器将会检验到这个假淘宝钓鱼网站的非法性，提醒用户不要继续访问！这样就可以保证 client 的所有 https 访问都是经过安全检查的。
+
+
 ### gRPC 服务端实现
 ```cpp
 #include <iostream>
