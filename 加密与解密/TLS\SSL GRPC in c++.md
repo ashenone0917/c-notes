@@ -33,7 +33,7 @@ openssl x509 -req -in server-req.pem -days 60 -CA ca-cert.pem -CAkey ca-key.pem 
 openssl req -newkey rsa:4096 -nodes -keyout client-key.pem -out client-req.pem -subj "/C=CN/ST=SC/L=ChenDu/O=AISHU/OU=Database/CN=localhost/emailAddress=xxxxxx.xxx@gmail.com"
 ```
 
-使用CA的私钥对服务器的CSR进行签名，并取回已签名证书
+使用CA的私钥对客户端的CSR进行签名，并取回已签名证书
 ```cpp
 openssl x509 -req -in client-req.pem -days 60 -CA ca-cert.pem -CAkey ca-key.pem -CAcreateserial -out client-cert.pem
 ```
@@ -63,6 +63,94 @@ server 将请求文件 server.req 递交给 CA 机构，CA 机构验明正身后
 
 比如：浏览器作为一个 SSL client, 你想访问合法的淘宝网站 https://www.taobao.com, 结果不慎访问到 https://wwww.jiataobao.com, 那么浏览器将会检验到这个假淘宝钓鱼网站的非法性，提醒用户不要继续访问！这样就可以保证 client 的所有 https 访问都是经过安全检查的。
 
+### 证书详细工作流
+![](https://github.com/ashenone0917/image/blob/main/0952f1a7026a53dae87bd4b1d45b26d3.png)
+
+1. 申请认证：服务器需自己生成公钥私钥对 pub_svr & pri_svr，同时根据 pub_svr 生成请求文件 csr, 提交给 CA 机构，csr 中含有公钥、组织信息、个人信息（域名）等信息。(图一中 server.req 就是 csr 请求文件)
+2. 审核信息：CA 机构通过线上、线下等多种手段验证申请者提供信息的真实性，如组织是否存在、企业是否合法，是否拥有域名的所有权等。
+3. 签发证书：如信息审核通过，CA 机构会向申请者签发认证文件：证书。
+证书包含以下信息：申请者公钥、申请者的组织信息和个人信息、签发机构 CA 的信息、有效时间、证书序列号等信息的明文，同时包含一个签名。
+签名的产生算法：首先，使用散列函数计算公开的明文信息的信息摘要，然后，采用 CA 的私钥对信息摘要进行加密，密文即签名。（图一中生成 server.crt）
+4. 返回证书：client 如果请求验证服务器，服务器需返回证书文件。（图一中 handshake 传回 server.crt）
+5. client验证证书：client 读取证书中的相关的明文信息，采用相同的散列函数计算得到信息摘要，然后，利用对应 CA 的公钥解密签名数据，对比证书的信息摘要，如果一致，则可以确认证书的合法性，即公钥合法。客户端然后验证证书相关的域名信息、有效时间是否吊销等信息。
+客户端会内置信任 CA 的证书信息（包含公钥），如果 CA 不被信任，则找不到对应 CA 的证书，证书也会被判定非法。(图一中 check 可选，我们可以选择不验证服务器证书的有效性)
+6. 秘钥协商：验证通过后，server 和 client 将进行秘钥协商。接下来 server 和 client 会采用对称秘钥加密。(对称加密时间性能优)（图一中 pre-master/change_cipher_spec/encrypted_handshake_message 过程）
+7. 数据传输：SSL server 和 SSL client 采用对称秘钥加密解密数据。
+
+### 私有部署模拟申请证书(双向认证)
+1. 生成CA的私钥和自签名证书(ca.crt，本地模拟CA)
+2. 生成服务器的私钥和证书签名请求(CSR)，使用CA的私钥对服务器的CSR进行签名，并取回已签名证书(此时已经有了服务端私钥和服务端签名证书(server.crt))
+3. 客户端安装包的内置一份服务端的ca.crt作为根证书(ssl_opts.pem_root_certs参数)
+4. 客户端登录，服务端返回签名证书(server.crt)
+5. 客户端使用CA生成的ca.crt认证过服务器之后，生成公私钥对(client_pri,client_pub)，上传公钥给服务端(auth)
+6. 服务端使用私钥为客户端公钥签发中间证书(client.crt)(可以类比为CA二级机构向申请者签发证书，链：ca.crt->server.crt->client.crt)
+7. 客户端有了私钥和client.crt，可以为其他想要访问的服务端的连接自签证书用于双向认证(本地不自签也可以使用client.crt访问，因为服务端签出来的证书，服务端自然可以认证过，就是没办法精确吊销某个服务了)
+8. 比如客户端想访问某台服务器，那么可以自己生成公私钥对，然后用客户端用client_pri自签证书，作为证书链的底部(ca.crt->server.crt->client.crt->client2.crt)，用于让服务端认证(pem_cert_chain = client2.crt + "\n" + client.crt，自签的证书可以自己设置每个服务的不同有效期，服务端可以选择吊销不同的服务，如果都是使用client.crt来访问，就没办法吊销不同的服务了，如果想要吊销所有服务，只要吊销client.crt即可)
+9. 如此以来，服务端就可以认证客户端，客户端也可以认证服务端，形成双向认证
+
+### 证书校验
+证书/证书链的可信性 trusted certificate path，方法如前文所述
+
+证书是否吊销 revocation，有两类方式离线 CRL 与在线 OCSP，不同客户端行为会不同
+
+有效期 expiry date，证书是否在有效时间范围
+
+域名 domain，核查证书域名是否与当前的访问域名匹配 (CN 字段)
+```
+证书校验没有强制的过程，也就是校验严格和校验宽松通常都是可以配置的，由校验端来确定。
+```
+
+### 证书等格式说明
+**crt/key/req/csr/pem/der 等拓展名都是什么东东？**
+
+.crt 表示证书, .key 表示私钥, .req 表示请求文件,.csr 也表示请求文件, .pem 表示 pem 格式，.der 表示 der 格式。
+```
+文件拓展名你可以随便命名，只是为了理解需要而命名不同的拓展名。但文件中的信息是有格式的，和 exe，PE 格式一样。
+```
+
+证书有两种格式：pem 格式和 der 格式
+
+所有证书，私钥等都可以是 pem, 也可以是 der 格式，取决于应用需要。
+pem 和 der 格式可以互转:
+
+```
+openssl x509 -in ca.crt -outform DER -out ca.der  # pem -> der
+openssl x509 -inform der -in ca.der -out ca.pem   # der -> pem
+```
+pem 格式：经过加密的文本文件，一般有下面几种开头结尾：
+```
+	-----BEGIN RSA PRIVATE KEY-----
+	-----END RSA PRIVATE KEY-----
+	or:
+   -----BEGIN CERTIFICATE REQUEST-----
+   -----END CERTIFICATE REQUEST-----
+	or:
+   ----BEGIN CERTIFICATE-----
+  -----END CERTIFICATE-----
+```
+der 格式: 经过加密的二进制文件。
+
+### 如何查看证书中有什么
+证书中含有 申请者公钥、申请者的组织信息和个人信息、签发机构 CA 的信息、有效时间、证书序列号等信息的明文，同时包含一个签名。如查看百度证书详细信息。
+
+a) 先下载百度证书
+火狐浏览器访问 https://www.baidu.com/, 点击左上角绿色小锁，点击向右箭头，点击更多信息，点击查看证书，点击详细信息，点击导出。即可导出百度的证书 baiducom.crt
+
+b) 命令查看证书详细信息
+```
+openssl x509 -noout -text -in baiducom.crt
+```
+
+![](https://github.com/ashenone0917/image/blob/main/1452c05e8b429f7fbe9250a759710848.png)
+
+详细信息中，有一个字段： X509v3 Basic Constraints: CA: FALSE
+
+该字段指出该证书是否是 CA 证书，还是一般性的非 CA 证书。详细描述见 RFC5280#section-4.2.1.9，同时 RFC5280 也详细描述证书工作方式等。
+
+### SSL/TLS 和 OpenSSL, mbedTLS 是什么关系
+SSL/TLS 是一种工作原理，OpenSSL 和 mbedTLS 是 SSL/TLS 的具体实现，很类似于 TCP/IP 协议和 socket 之间的关系。
+
+[参考](https://blog.csdn.net/ustccw/article/details/76691248)
 
 ### gRPC 服务端实现
 ```cpp
