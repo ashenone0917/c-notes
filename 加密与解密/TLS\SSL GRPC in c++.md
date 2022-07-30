@@ -11,7 +11,7 @@
 
 ## gRPC 双向认证
 ### TLS证书生成
-![](https://github.com/ashenone0917/image/blob/main/b05863e452a0678db087e98ca16b36dd (1).png)
+![](https://github.com/ashenone0917/image/blob/main/b05863e452a0678db087e98ca16b36dd.png)
 
 生成CA的私钥和自签名证书
 ```cpp
