@@ -72,8 +72,8 @@ private:
 };
 
 #define PARENT_NODE(n) ((n - 1) >> 1)
-#define LEFT_CHILD(n) ((n >> 1) + 1)
-#define RIGHT_CHILD(n) ((n >> 1) + 2)
+#define LEFT_CHILD(n) ((n << 1) + 1)
+#define RIGHT_CHILD(n) ((n << 1) + 2)
 
 void swap(int& a, int& b) {
     int tmp = a;
@@ -84,6 +84,8 @@ void swap(int& a, int& b) {
 void heapify(std::vector<int>& v,int current,int count) {
     while (true) {
         int maxPos = current;
+        auto left = LEFT_CHILD(current);
+        auto right = RIGHT_CHILD(current);
         if (LEFT_CHILD(current) <= count && v[current] < v[LEFT_CHILD(current)]) maxPos = LEFT_CHILD(current);
         if (RIGHT_CHILD(current) <= count && v[maxPos] < v[RIGHT_CHILD(current)]) maxPos = RIGHT_CHILD(current);
 
@@ -92,28 +94,25 @@ void heapify(std::vector<int>& v,int current,int count) {
         current = maxPos;
     }
 }
+
+
 void heapSort(std::vector<int>& v) {
+    //build heap
     auto count = v.size() - 1;
     for (int i = (count >> 1); i >= 0; --i) {
         heapify(v, i, count);
     }
 
-
+    while (count > 0) {
+        swap(v[0], v[count--]);
+        heapify(v, 0, count);
+    }
 }
 
 int main()
 {
-    
+    std::vector<int> v = { 7,1,5,6,6,1,2,8,0 };
+    heapSort(v);
+    return 0;
 }
-
-// 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
-// 调试程序: F5 或调试 >“开始调试”菜单
-
-// 入门使用技巧: 
-//   1. 使用解决方案资源管理器窗口添加/管理文件
-//   2. 使用团队资源管理器窗口连接到源代码管理
-//   3. 使用输出窗口查看生成输出和其他消息
-//   4. 使用错误列表窗口查看错误
-//   5. 转到“项目”>“添加新项”以创建新的代码文件，或转到“项目”>“添加现有项”以将现有代码文件添加到项目
-//   6. 将来，若要再次打开此项目，请转到“文件”>“打开”>“项目”并选择 .sln 文件
 ```
