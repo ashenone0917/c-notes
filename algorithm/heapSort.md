@@ -22,7 +22,7 @@ public:
         data_[count_] = value;
         int i = count_;
         while ((i >> 1) > 0 && data_[i >> 1] < data_[i]) {
-            swap(data_[i], data_[i / 2]);
+            swap(i, i / 2);
             i = i >> 1;
         }
     }
@@ -43,7 +43,7 @@ private:
 
             if (maxPos == i) break;
 
-            swap(data_[i], data_[maxPos]);
+            swap(i, maxPos);
             i = maxPos;
         }
     }
@@ -60,10 +60,10 @@ private:
         data_ = temp;
     }
 
-    void swap(int& a, int& b) {
-        int tmp = a;
-        a = b;
-        b = tmp;
+    void swap(int a, int b) {
+        int tmp = data_[a];
+        data_[a] = data_[b];
+        data_[b] = tmp;
     }
 
     int count_ = 0;
