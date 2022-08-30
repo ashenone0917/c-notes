@@ -1,6 +1,17 @@
 ```cpp
 #include <vector>
 #include <string>
+#include <iterator>
+#include <regex>
+std::vector<std::string> s_split(const std::string& in, const std::string& delim) {
+    std::regex re{ delim };
+    // 调用 std::vector::vector (InputIterator first, InputIterator last,const allocator_type& alloc = allocator_type())
+    // 构造函数,完成字符串分割
+    return std::vector<std::string> {
+        std::sregex_token_iterator(in.begin(), in.end(), re, -1),
+            std::sregex_token_iterator()
+    };
+}
 
 template<typename TString>
 inline std::vector<TString> SplitString(TString& tstring_, typename TString::const_pointer delim) {
