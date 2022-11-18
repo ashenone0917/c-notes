@@ -1279,3 +1279,5 @@ C++标准与C的标准有所不同，它没有规定标准库中的头文件之�
 个人强烈推荐：[http://www.cplusplus.com/](http://www.cplusplus.com/) 尤其是其中的Reference([http://www.cplusplus.com/reference/](http://www.cplusplus.com/reference/))，有时cplusplus网站会打不开，此时也可参考cppreference：[https://en.cppreference.com/w/cpp](https://en.cppreference.com/w/cpp)
 
 **GitHub**：[https://github.com/fengbingchun/Messy\_Test](https://github.com/fengbingchun/Messy_Test)
+
+> https://blog.csdn.net/fengbingchun/article/details/103223914
