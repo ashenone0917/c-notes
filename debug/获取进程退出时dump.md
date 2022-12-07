@@ -13,7 +13,7 @@
 - 调用TerminateProcess函数结束进程：
 ![13658142-b347c53beeb03f1a](https://user-images.githubusercontent.com/79822208/206180697-0507ed8e-b902-4885-b7b4-d9ad4d99f9de.png)
 
-5. 抓取退出时的dump
+5. 抓取退出时的dump  
 ![QQ截图20221207203733](https://user-images.githubusercontent.com/79822208/206181516-bc0c0063-7f09-4f4a-8c58-535dd68773f3.png)  
 - Enable Dump collection打开dump收集功能
 - Dump Folder Location 为生成dump路径
