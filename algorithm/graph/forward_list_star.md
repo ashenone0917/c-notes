@@ -1,9 +1,9 @@
-```cpp
 // foward_list_star.cpp : 此文件包含 "main" 函数。程序执行将在此处开始并结束。
 //链式向前星
 
 #include <iostream>
 #include <vector>
+#include <queue>
 struct Edge {
 	uint32_t to_;
 	uint32_t weight_;
@@ -18,6 +18,10 @@ void add_edge(uint32_t point,uint32_t weight,uint32_t to) {
 	edges[cnt].to_ = to;
 	edges[cnt].next_ = points[point];
 	points[point] = cnt++;
+}
+
+void SearchPath(uint32_t from, uint32_t to) {
+
 }
 
 int main() {
@@ -47,4 +51,3 @@ int main() {
 
 	return 0;
 }
-```
