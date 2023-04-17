@@ -3,4 +3,5 @@ bu user32!GetWindowRect ".if(poi(esp+4)==0n456){kv;g}.else{g}"
 //bu表示利用符号下断点
 //在Windbg中，poi表示“指针解引用并读取内存值”。poi是“Pointer Operand Indirect”的缩写。它用于读取指针指向的内存位置的值。
 //使用十进制数字的时候加一个0n，否则匹配不到，默认使用的是16进制
+//kv;g表示打印堆栈后继续运行，不会中断程序运行
 ```
