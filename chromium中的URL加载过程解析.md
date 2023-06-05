@@ -95,7 +95,7 @@ class CONTENT_EXPORT Navigator {
    ...
 }
 ```
-1. 调用FrameTreeNode的~~CreateNavigationRequest()~~TakeNavigationRequest()方法，将NavigationRequest对象存储；
+1. 调用FrameTreeNode的~~CreateNavigationRequest~~TakeNavigationRequest()方法，将NavigationRequest对象存储；
 2. 调用FrameTreeNode中NavigationRequest对象的BeginNavigation()方法进行加载。
 BeforeUnload事件的判断处理，是在第一步和第二步中间。
 ```cpp
