@@ -89,12 +89,58 @@ FrameTree 提供了一个层次结构，用于表示和管理这些嵌套的框�
 Frame Tree Node ID（帧树节点 ID）是由浏览器生成的标识符，用于唯一标识 Frame Tree（帧树）中的每个节点。它不是由网页指定的，而是由浏览器在解析和组织网页框架时生成的。每个 Frame Tree 节点都会被分配一个唯一的节点 ID，用于在内部进行引用和管理。
   
 #### 3. Navigator
-该类负责在一棵FrameTree的节点中执行URL导航操作，可以被同一棵FrameTree上的多个FrameTreeNode所共享，但不能被多棵FrameTree的子节点所共享。~~该类是一个抽象类，实现类为NavigatorImpl~~。Navigate()方法中，先判断当前指定的FrameTreeNode所代表的网页中是否有悬挂的BeforeUnload事件处理器需要执行，如果有，则先执行BeforeUnload事件处理程序，稍后派发NavigationRequest到FrameTreeNode；如果没有，则立即派发。派发形式如下：
+该类负责在一棵FrameTree的节点中执行URL导航操作，可以被同一棵FrameTree上的多个FrameTreeNode所共享(例如同一个标签页的多个iframe)，但不能被多棵FrameTree的子节点所共享(例如不同的浏览器窗口或标签页)。~~该类是一个抽象类，实现类为NavigatorImpl~~。Navigate()方法中，先判断当前指定的FrameTreeNode所代表的网页中是否有悬挂的BeforeUnload事件处理器需要执行，如果有，则先执行BeforeUnload事件处理程序，稍后派发NavigationRequest到FrameTreeNode；如果没有，则立即派发。派发形式如下：
 ```cpp
 class CONTENT_EXPORT Navigator {
    ...
 }
 ```
-1. 调用FrameTreeNode的CreateNavigationRequest()方法，将NavigationRequest对象存储；
+1. 调用FrameTreeNode的~~CreateNavigationRequest()~~TakeNavigationRequest()方法，将NavigationRequest对象存储；
 2. 调用FrameTreeNode中NavigationRequest对象的BeginNavigation()方法进行加载。
 BeforeUnload事件的判断处理，是在第一步和第二步中间。
+```cpp
+void Navigator::Navigate(std::unique_ptr<NavigationRequest> request,
+                         ReloadType reload_type) {
+  ....
+  // 检查是否需要触发 beforeunload 事件，并确定是否需要等待渲染器的响应
+  bool no_dispatch_because_avoid_unnecessary_sync = false;
+  bool should_dispatch_beforeunload =
+      !NavigationTypeUtils::IsSameDocument(
+          request->common_params().navigation_type) &&
+      !request->common_params().is_history_navigation_in_new_child_frame &&
+      frame_tree_node->current_frame_host()->ShouldDispatchBeforeUnload(
+          false /* check_subframes_only */,
+          &no_dispatch_because_avoid_unnecessary_sync);
+
+  int nav_entry_id = request->nav_entry_id();
+  bool is_pending_entry =
+      controller_.GetPendingEntry() &&
+      (nav_entry_id == controller_.GetPendingEntry()->GetUniqueID());
+  //调用FrameTreeNode的TakeNavigationRequest()方法，将NavigationRequest对象存储；
+  frame_tree_node->TakeNavigationRequest(std::move(request));
+  DCHECK(frame_tree_node->navigation_request());
+
+  // 如果需要触发 beforeunload 事件，则调度渲染器的 beforeunload 事件
+  if (should_dispatch_beforeunload) {
+    frame_tree_node->navigation_request()->SetWaitingForRendererResponse();
+    frame_tree_node->current_frame_host()->DispatchBeforeUnload(
+        RenderFrameHostImpl::BeforeUnloadType::BROWSER_INITIATED_NAVIGATION,
+        reload_type != ReloadType::NONE);
+  } else {
+    // 如果避免了不必要的同步，则记录避免同步前的导航开始时间
+    if (no_dispatch_because_avoid_unnecessary_sync) {
+      LogNavigationStartToBeginWithAvoidUnnecessaryBeforeUnloadSync(
+          base::TimeTicks::Now() - frame_tree_node->navigation_request()
+                                       ->common_params()
+                                       .navigation_start);
+    }
+    // 开始导航
+    frame_tree_node->navigation_request()->BeginNavigation();
+    // 警告：在此之后，NavigationRequest 可能已经被销毁，使用前应先进行空指针检查
+  }
+
+  // 确保 RFH::Navigate 中不会清除挂起的导航条目
+  if (is_pending_entry)
+    CHECK_EQ(nav_entry_id, controller_.GetPendingEntry()->GetUniqueID());
+}
+```
