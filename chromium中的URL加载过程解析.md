@@ -97,7 +97,7 @@ class CONTENT_EXPORT Navigator {
 ```
 1. 调用FrameTreeNode的~~CreateNavigationRequest~~TakeNavigationRequest()方法，将NavigationRequest对象存储；
 2. 调用FrameTreeNode中NavigationRequest对象的BeginNavigation()方法进行加载。
-BeforeUnload事件的判断处理，是在第一步和第二步中间。
+
 ```cpp
 void Navigator::Navigate(std::unique_ptr<NavigationRequest> request,
                          ReloadType reload_type) {
@@ -136,7 +136,6 @@ void Navigator::Navigate(std::unique_ptr<NavigationRequest> request,
     }
     // 开始导航
     frame_tree_node->navigation_request()->BeginNavigation();
-    // 警告：在此之后，NavigationRequest 可能已经被销毁，使用前应先进行空指针检查
   }
 
   // 确保 RFH::Navigate 中不会清除挂起的导航条目
@@ -144,3 +143,5 @@ void Navigator::Navigate(std::unique_ptr<NavigationRequest> request,
     CHECK_EQ(nav_entry_id, controller_.GetPendingEntry()->GetUniqueID());
 }
 ```
+#### 4. NavigationRequest
+
