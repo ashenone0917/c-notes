@@ -339,7 +339,7 @@ content::ResourceDispatcherHostImpl::BeginNavigationRequestInternal()   -->  con
 content::ResourceDispatcherHostImpl::StartLoading()  
 
 content::ResourceLoader::StartRequest()       
-content::ResourceLoader::ScopedDeferral::~ScopedDeferral()   //判断状态
+content::ResourceLoader::ScopedDeferral::~ScopedDeferral()   //判断状态  
 content::ResourceLoader::Resume()        
 content::ResourceLoader::StartRequestInternal()  
 net::URLRequest::Start()   
