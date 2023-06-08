@@ -292,6 +292,7 @@ ResourceLoader类的ResponseCompleted()方法被调用，然后通过ResourceLoa
 第五阶段（接收处理主要资源，发起子资源请求）：
 
 同名方法OnStartLoadingResponseBody()被调用，分别经过以下几个类，最终到达HTMLTreeBuilder:
+```cpp
 URLResponseBodyConsumer::OnReadable()
 WebURLLoaderImpl::RequestPeerImpl::OnReceivedData()
 WebURLLoaderImpl::Context::OnReceivedData()
@@ -300,8 +301,9 @@ RawResource::AppendData()
 DocumentLoader::DataReceived()   ::ProcessData()   ::CommitData()  ::InstallNewDocument()
 HTMLDocumentParser::AppendBytes()  ::PumpPendingSpeculations()  ::ProcessTokenizedChunkFromBackgroundParser()
 HTMLTreeBuilder::ConstructTree()
-
+```
 在构建DOM树的时候，如果发现一个子节点需要加载资源，比如css文件。则HTMLDocumentParser类的DocumentElementAvailable()方法会被调用，然后调用自身的资源预加载器preloader_的TakeAndPreload()对资源进行加载。之后的调用过程如下：
+```cpp
 HTMLResourcePreloader::Preload()
 PreloadRequest::Start()
 DocumentLoader::StartPreload()  
@@ -309,13 +311,13 @@ CSSStyleSheetResource::Fetch()
 ResourceFetcher::RequestResource()
 过程同上.....
 ChildURLLoaderFactoryBundle::CreateLoaderAndStart()
-
+```
  
 
  
 
 以下是堆栈调用的一个大概过程：
-
+```cpp
 content::NavigationControllerImpl::LoadURLWithParams()  
 content::NavigationControllerImpl::NavigateWithoutEntry()  
 content::NavigatorImpl::Navigate()  
@@ -445,7 +447,7 @@ content::ThrottlingURLLoader::Start()
 content::ThrottlingURLLoader::StartNow()  
 content::ChildURLLoaderFactoryBundle::CreateLoaderAndStart(n)  
 network::mojom::URLLoaderFactoryProxy::CreateLoaderAndStart()    
- 
+```
  
 
 从render_view_impl.cc开始说起。
