@@ -49,7 +49,23 @@ void NavigationRequest::OnWillProcessResponseChecksComplete(
     NavigationThrottle::ThrottleCheckResult result);
 void NavigationRequest::RunCommitDeferringConditions();
 .....
+content::Navigator::OnBeginNavigation(content::FrameTreeNode*, mojo::StructPtr<blink::mojom::CommonNavigationParams>, mojo::StructPtr<blink::mojom::BeginNavigationParams>, scoped_refptr<network::SharedURLLoaderFactory>, mojo::PendingAssociatedRemote<content::mojom::NavigationClient>, scoped_refptr<content::PrefetchedSignedExchangeCache>, mojo::PendingReceiver<content::mojom::NavigationRendererCancellationListener>) (this=0x564dfb8de0a0, frame_tree_node=0x564dfb61d160, common_params=..., begin_params=..., blob_url_loader_factory=..., navigation_client=..., prefetched_signed_exchange_cache=..., renderer_cancellation_listener=...) at ../../content/browser/renderer_host/navigator.cc:1103
+
+content::NavigationRequest::BeginNavigation() (this=0x564dfb4aa1b0) at ../../content/browser/renderer_host/navigation_request.cc:2171
+
+content::NavigationRequest::BeginNavigationImpl() (this=0x564dfb4aa1b0) at ../../content/browser/renderer_host/navigation_request.cc:2537
+
+content::NavigationRequest::WillStartRequest() (this=0x564dfb4aa1b0) at ../../content/browser/renderer_host/navigation_request.cc:6447
+
+content::NavigationThrottleRunner::ProcessNavigationEvent(content::NavigationThrottleRunner::Event) (this=0x564dfb9ab8a0, event=content::NavigationThrottleRunner::Event::WillStartRequest) at ../../content/browser/renderer_host/navigation_throttle_runner.cc:115
+
+content::NavigationThrottleRunner::ProcessInternal() (this=0x564dfb9ab8a0) at ../../content/browser/renderer_host/navigation_throttle_runner.cc:228
+
+content::(anonymous namespace)::ExecuteNavigationEvent(content::NavigationThrottle*, content::NavigationThrottleRunner::Event) (throttle=0x564dfb9abad0, event=content::NavigationThrottleRunner::Event::WillStartRequest) at ../../content/browser/renderer_host/navigation_throttle_runner.cc:35
+
 content::NavigationThrottle::ThrottleCheckResult PdfNavigationThrottle::WillStartRequest();
+at ../../components/pdf/browser/pdf_navigation_throttle.cc:56
+
 base::WeakPtr<NavigationHandle> NavigationControllerImpl::LoadURLWithParams(
     const LoadURLParams& params);
 base::WeakPtr<NavigationHandle> NavigationControllerImpl::NavigateWithoutEntry(
