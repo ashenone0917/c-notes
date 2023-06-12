@@ -50,7 +50,9 @@ void NavigationRequest::OnWillProcessResponseChecksComplete(
 void NavigationRequest::RunCommitDeferringConditions();
 
 .....
-
+NavigationThrottle::ThrottleCheckResult ExecuteNavigationEvent(
+    NavigationThrottle* throttle,
+    NavigationThrottleRunner::Event event);
 content::NavigationThrottle::ThrottleCheckResult PdfNavigationThrottle::WillStartRequest();
 base::WeakPtr<NavigationHandle> NavigationControllerImpl::LoadURLWithParams(
     const LoadURLParams& params);
