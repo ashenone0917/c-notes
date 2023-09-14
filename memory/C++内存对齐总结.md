@@ -111,6 +111,8 @@ https://plantegg.github.io/2021/05/16/CPU_Cache_Line%E5%92%8C%E6%80%A7%E8%83%BD/
 cache性能优化总结：
 https://blog.csdn.net/yaolanshu_June/article/details/79047302  
 
+一篇论文讲透Cache优化
+https://zhuanlan.zhihu.com/p/608663298
 
 至此，C++内存对齐总结已经差不多了。想要更多了解C++对象内存分配推荐陈浩的2篇文章：\
 [http://blog.csdn.net/haoel/article/details/3081328](http://blog.csdn.net/haoel/article/details/3081328 "1")\
