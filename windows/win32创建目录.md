@@ -1,5 +1,8 @@
 ```cpp
 bool CreateDirectoryRecursive(const std::wstring& directory) {
+    if (directory.empty())
+        return false;
+
     size_t pos = 0;
     std::wstring current_dir;
     auto colon_pos = directory.find_first_of(L":\\", pos);
